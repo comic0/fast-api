@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/comic0/fast-api.git"
+    "url": "git+https://github.com/comic0/fast-api-client.git"
   },
   "author": "comic0",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/comic0/fast-api/issues"
+    "url": "https://github.com/comic0/fast-api-client/issues"
   },
-  "homepage": "https://github.com/comic0/fast-api#readme"
+  "homepage": "https://github.com/comic0/fast-api-client#readme"
 }
