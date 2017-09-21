@@ -1,0 +1,121 @@
+'use strict';
+
+function DataObject(){
+  var self = this;
+
+  var m_object = 'unknown';
+  var m_properties = {};
+
+  this.id = null;
+
+  function construct( type, properties ){
+
+    if( arguments.length==1 ){
+
+      properties = type;
+
+    } else {
+
+      m_object = type;
+    }
+
+    if( isObject(properties) ){
+
+      for( var i in properties ){
+
+        addProperty( i, properties[i] );
+      }
+    }
+  }
+
+  function isObject( data ){
+
+    return data!=null && typeof data=="object";
+  }
+
+  function isArray( data ){
+
+    return isObject(data) && data.length!=undefined;
+  }
+
+  function addProperty( name, value ){
+
+    if( name=='id' ){
+
+      self.id = value;
+      return;
+    }
+
+    if( name=='__type' ){
+
+      m_object = value;
+      return;
+    }
+
+    if( isArray(value) ){
+
+      m_properties[name] = DataObject.array(value);
+
+    } else if( isObject(value) ){
+
+      m_properties[name] = new DataObject(value);
+
+    } else {
+
+      m_properties[name] = value;
+    }
+  }
+
+  this.json = function( includeID ){
+
+    var json = {};
+
+    if( includeID && self.id )
+      json.id = self.id;
+
+    for( var i in m_properties ){
+
+      var value = m_properties[i];
+
+      if( isArray(value) ){
+
+        var collection = [];
+        for( var j=0; j<value.length; j++ ){
+          collection.push(value[j].json());
+        }
+        json[i] = collection;
+
+      } else if( isObject(value) ) {
+
+        json[i] = value.json();
+
+      } else {
+
+        json[i] = value;
+      }
+    }
+
+    return json;
+  }
+
+  this.getType = function () {
+
+    return m_object;
+  };
+
+  construct.apply(self, arguments);
+}
+
+DataObject.array = function( values ){
+
+  var collection = [];
+
+  for( var i=0; i<values.length; i++ ){
+
+    collection.push(new DataObject(values[i]));
+  }
+
+  return collection;
+};
+
+module.exports = DataObject;

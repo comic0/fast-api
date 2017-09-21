@@ -1,0 +1,19 @@
+{
+  "name": "fast-api",
+  "version": "1.0.0",
+  "description": "Fast & Furious API Client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comic0/fast-api.git"
+  },
+  "author": "comic0",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/comic0/fast-api/issues"
+  },
+  "homepage": "https://github.com/comic0/fast-api#readme"
+}
