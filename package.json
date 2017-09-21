@@ -1,5 +1,5 @@
 {
-  "name": "fast-api",
+  "name": "fast-api-client",
   "version": "1.0.0",
   "description": "Fast & Furious API Client",
   "main": "index.js",
