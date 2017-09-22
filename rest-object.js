@@ -7,6 +7,7 @@ function DataObject(){
   var m_properties = {};
 
   this.id = null;
+  this.isDataObject = true;
 
   function construct( type, properties ){
 
@@ -30,7 +31,7 @@ function DataObject(){
 
   function isObject( data ){
 
-    return data!=null && typeof data=="object";
+    return data!=undefined && data!=null && typeof data=="object";
   }
 
   function isArray( data ){
@@ -96,7 +97,27 @@ function DataObject(){
     }
 
     return json;
-  }
+  };
+
+  this.get = function( property ){
+
+    return m_properties[property];
+  };
+
+  this.set = function( property, value ){
+
+    m_properties[property] = value;
+  };
+
+  this.push = function( property, value ){
+
+    if( !isArray(m_properties[property]) ){
+
+      m_properties[property] = [];
+    }
+
+    m_properties[property].push(value);
+  };
 
   this.getType = function () {
 

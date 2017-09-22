@@ -118,14 +118,18 @@ function FastApiQuery(){
 function FastApiManager(){
   var self = this;
 
+  var m_logged;
   var m_hostname;
   var m_rootpath;
   var m_query;
+  var m_apiKey;
 
-  function construct( apiUrl ){
+  function construct( apiUrl, apiKey ){
 
     var uri = url.parse(apiUrl);
 
+    m_logged = null;
+    m_apiKey = apiKey;
     m_hostname = uri.hostname;
     m_rootpath = uri.pathname;
 
@@ -149,6 +153,16 @@ function FastApiManager(){
     return self;
   };
 
+  this.login = function( object ){
+
+    m_logged= object;
+  };
+
+  this.logout = function(){
+
+    m_logged = null;
+  };
+
   this.prepare = function( prepare ){
 
     if( typeof prepare == 'function' ){
@@ -157,32 +171,41 @@ function FastApiManager(){
 
     return new Promise(function (resolve, reject) {
 
+      var headers = {
+          'Content-Type': 'application/json',
+          'X-Fast-Api-Key': m_apiKey
+      };
+
+      if( m_logged ){
+
+        headers['X-Api-Logged-Id'] = m_logged.id;
+        headers['X-Api-Logged-Type'] = m_logged.getType();
+      }
+
       var options = {
         hostname: m_hostname,
         path: m_rootpath + m_query.getPath(),
         method: m_query.getType().toUpperCase(),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: headers
       };
 
-      var request = http.request(options, (res) => {
+      var request = http.request(options, function (res) {
 
         res.setEncoding('utf8');
-        res.on('data', (data) => {
+        res.on('data', function(data){
 
-          try {
+            try {
 
-            var data = JSON.parse(data);
-            if( data.success ){
-              resolve(parseResult(data.result));
-            } else {
-              reject(data.message);
+                var data = JSON.parse(data);
+                if( data.success ){
+                    resolve(parseResult(data.result));
+                } else {
+                    reject(data.message);
+                }
+
+            } catch (e){
+                reject(e.message);
             }
-
-          } catch (e){
-            reject(e.message);
-          }
         });
       });
 
@@ -202,9 +225,17 @@ function FastApiManager(){
 }
 
 module.exports = {
-  configure: function( url ){
+  configure: function( url, apiKey ){
 
-    sharedManager = new FastApiManager( url );
+    sharedManager = new FastApiManager( url, apiKey );
+  },
+  login: function( object ){
+
+    sharedManager.login(object);
+  },
+  logout: function(){
+
+    sharedManager.logout();
   },
   get: function ( object, filters, prepare ) {
 
