@@ -24,7 +24,7 @@ function DataObject(){
 
       for( var i in properties ){
 
-        addProperty( i, properties[i] );
+        setProperty( i, properties[i] );
       }
     }
   }
@@ -39,7 +39,7 @@ function DataObject(){
     return isObject(data) && data.length!=undefined;
   }
 
-  function addProperty( name, value ){
+  function setProperty( name, value ){
 
     if( name=='id' ){
 
@@ -47,10 +47,20 @@ function DataObject(){
       return;
     }
 
-    if( name=='__type' ){
+    if( name=='type' ){
 
       m_object = value;
       return;
+    }
+
+    if( m_properties[name]==undefined ){
+
+      Object.defineProperty(self, name, {
+          get: function() { return getProperty(name); },
+          set: function(newValue) { setProperty(name, newValue); },
+          enumerable: true,
+          configurable: true
+      });
     }
 
     if( isArray(value) ){
@@ -65,6 +75,11 @@ function DataObject(){
 
       m_properties[name] = value;
     }
+  }
+
+  function getProperty( name ){
+
+    return m_properties[name];
   }
 
   this.json = function( includeID ){
@@ -101,12 +116,12 @@ function DataObject(){
 
   this.get = function( property ){
 
-    return m_properties[property];
+    return getProperty(property);
   };
 
   this.set = function( property, value ){
 
-    m_properties[property] = value;
+    setProperty(property, value);
   };
 
   this.push = function( property, value ){
