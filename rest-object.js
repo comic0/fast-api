@@ -47,7 +47,7 @@ function DataObject(){
       return;
     }
 
-    if( name=='type' ){
+    if( name=='__type' ){
 
       m_object = value;
       return;
