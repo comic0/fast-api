@@ -118,6 +118,7 @@ function FastApiQuery(){
 function FastApiManager(){
   var self = this;
 
+  var m_url;
   var m_logged;
   var m_hostname;
   var m_rootpath;
@@ -125,6 +126,8 @@ function FastApiManager(){
   var m_apiKey;
 
   function construct( apiUrl, apiKey ){
+
+    m_url = apiUrl;
 
     var uri = url.parse(apiUrl);
 
@@ -166,6 +169,11 @@ function FastApiManager(){
   this.logout = function(){
 
     m_logged = null;
+  };
+
+  this.getUploadUrl = function(){
+
+    return m_url + '/upload';
   };
 
   this.prepare = function( prepare ){
@@ -237,6 +245,10 @@ module.exports = {
   login: function( object ){
 
     sharedManager.login(object);
+  },
+  uploadUrl: function(){
+
+    return sharedManager.getUploadUrl();
   },
   user: function(){
 
