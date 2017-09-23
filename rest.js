@@ -158,6 +158,11 @@ function FastApiManager(){
     m_logged= object;
   };
 
+  this.currentUser = function(){
+
+    return m_logged;
+  };
+
   this.logout = function(){
 
     m_logged = null;
@@ -232,6 +237,10 @@ module.exports = {
   login: function( object ){
 
     sharedManager.login(object);
+  },
+  user: function(){
+
+    return sharedManager.currentUser();
   },
   logout: function(){
 
