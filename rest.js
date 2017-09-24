@@ -279,10 +279,23 @@ module.exports = {
     query.setData(object.json());
     return sharedManager.init(query).prepare();
   },
-  insert: function( object ){
+  insert: function( object, data ){
 
-    var query = new FastApiQuery( 'put', object.getType() );
-    query.setData(object.json());
-    return sharedManager.init(query).prepare();
+    if( data==undefined ){
+
+      var query = new FastApiQuery( 'put', object.getType() );
+      query.setData(object.json());
+      return sharedManager.init(query).prepare();
+
+    } else {
+
+      var query = new FastApiQuery('put', object);
+      var rows = [];
+      for( var i=0; i<data.length; i++ ){
+        rows.push(data[i].json());
+      }
+      query.setData(rows);
+      return sharedManager.init(query).prepare();
+    }
   }
 };
