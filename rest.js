@@ -241,10 +241,18 @@ module.exports = {
   configure: function( url, apiKey ){
 
     sharedManager = new FastApiManager( url, apiKey );
+
+    var currentUser = this.stored('current-user');
+
+    if( currentUser ){
+
+      this.login(currentUser);
+    }
   },
   login: function( object ){
 
     sharedManager.login(object);
+    this.store('current-user', object.json(true));
   },
   uploadUrl: function(){
 
@@ -297,5 +305,42 @@ module.exports = {
       query.setData(rows);
       return sharedManager.init(query).prepare();
     }
+  },
+  store: function(key, data){
+
+    if( localStorage ){
+
+      if( typeof data=="object" && data.isDataObject ){
+        data.__type = data.getType();
+      }
+      localStorage.setItem('fast-api-'+key, JSON.stringify(data));
+    }
+  },
+  stored: function (key) {
+
+    if( localStorage ){
+
+      try {
+
+        var value = localStorage.getItem('fast-api-'+key);
+        if( value ){
+          var data = JSON.parse(value);
+
+          if( typeof data=="object" && data.__type ){
+
+            return new DataObject(data);
+
+          } else {
+
+            return data;
+          }
+        }
+
+      } catch (e) {
+
+      }
+    }
+
+    return null;
   }
 };
