@@ -252,7 +252,7 @@ module.exports = {
   login: function( object ){
 
     sharedManager.login(object);
-    this.store('current-user', object.json(true));
+    this.store('current-user', object);
   },
   uploadUrl: function(){
 
@@ -265,6 +265,7 @@ module.exports = {
   logout: function(){
 
     sharedManager.logout();
+    this.store('current-user', null);
   },
   get: function ( object, filters, prepare ) {
 
@@ -310,10 +311,20 @@ module.exports = {
 
     if( localStorage ){
 
-      if( typeof data=="object" && data.isDataObject ){
-        data.__type = data.getType();
+      if( data!=null ){
+
+        if( typeof data=="object" && data.isDataObject ){
+
+            data = data.json(true);
+            data.__type = data.getType();
+        }
+
+        localStorage.setItem('fast-api-'+key, JSON.stringify(data));
+
+      } else {
+
+        localStorage.removeItem('fast-api-'+key);
       }
-      localStorage.setItem('fast-api-'+key, JSON.stringify(data));
     }
   },
   stored: function (key) {
