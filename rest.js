@@ -124,8 +124,9 @@ function FastApiManager(){
   var m_rootpath;
   var m_query;
   var m_apiKey;
+  var m_pushTable;
 
-  function construct( apiUrl, apiKey ){
+  function construct( apiUrl, apiKey, pushTable ){
 
     m_url = apiUrl;
 
@@ -133,6 +134,7 @@ function FastApiManager(){
 
     m_logged = null;
     m_apiKey = apiKey;
+    m_pushTable = pushTable;
     m_hostname = uri.hostname;
     m_rootpath = uri.pathname;
 
@@ -148,6 +150,22 @@ function FastApiManager(){
       return DataObject.array(data);
 
     return new DataObject(data);
+  }
+
+  function getHeaders() {
+
+    var headers = {
+        'Content-Type': 'application/json',
+        'X-Fast-Api-Key': m_apiKey
+    };
+
+    if( m_logged ){
+
+        headers['X-Api-Logged-Id'] = m_logged.id;
+        headers['X-Api-Logged-Type'] = m_logged.getType();
+    }
+
+    return headers;
   }
 
   this.init = function( query ){
@@ -176,6 +194,54 @@ function FastApiManager(){
     return m_url + '/upload';
   };
 
+  this.push = function( title, message, filters ){
+
+      return new Promise(function (resolve, reject) {
+
+          var headers = getHeaders();
+
+          var options = {
+              hostname: m_hostname,
+              path: m_rootpath + 'push',
+              method: 'POST',
+              headers: headers
+          };
+
+          var request = http.request(options, function (res) {
+
+              res.setEncoding('utf8');
+              res.on('data', function(data){
+
+                  try {
+
+                      var data = JSON.parse(data);
+                      if( data.success ){
+                          resolve(parseResult(data.result));
+                      } else {
+                          reject(data.message);
+                      }
+
+                  } catch (e){
+                      reject(e.message);
+                  }
+              });
+          });
+
+          request.on('error', function(e){
+              reject(e.message);
+          });
+
+          request.write(JSON.stringify({
+              src: m_pushTable,
+              where: filters,
+              title: title,
+              message: message
+          }));
+
+          request.end();
+      });
+  };
+
   this.prepare = function( prepare ){
 
     if( typeof prepare == 'function' ){
@@ -184,16 +250,7 @@ function FastApiManager(){
 
     return new Promise(function (resolve, reject) {
 
-      var headers = {
-          'Content-Type': 'application/json',
-          'X-Fast-Api-Key': m_apiKey
-      };
-
-      if( m_logged ){
-
-        headers['X-Api-Logged-Id'] = m_logged.id;
-        headers['X-Api-Logged-Type'] = m_logged.getType();
-      }
+      var headers = getHeaders();
 
       var options = {
         hostname: m_hostname,
@@ -238,9 +295,12 @@ function FastApiManager(){
 }
 
 module.exports = {
-  configure: function( url, apiKey ){
+  configure: function( url, apiKey, pushTable ){
 
-    sharedManager = new FastApiManager( url, apiKey );
+    if( pushTable==undefined )
+      pushTable = "devices:token";
+
+    sharedManager = new FastApiManager( url, apiKey, pushTable );
 
     var currentUser = this.stored('current-user');
 
@@ -266,6 +326,10 @@ module.exports = {
 
     sharedManager.logout();
     this.store('current-user', null);
+  },
+  push: function( title, message, filters ){
+
+    return sharedManager.push(title, message, filters);
   },
   get: function ( object, filters, prepare ) {
 
