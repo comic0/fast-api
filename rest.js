@@ -315,8 +315,9 @@ module.exports = {
 
         if( typeof data=="object" && data.isDataObject ){
 
-            data = data.json(true);
-            data.__type = data.getType();
+          var type = data.getType();
+          data = data.json(true);
+          data.__type = type;
         }
 
         localStorage.setItem('fast-api-'+key, JSON.stringify(data));
