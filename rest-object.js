@@ -39,6 +39,17 @@ function DataObject(){
     return isObject(data) && data.length!=undefined;
   }
 
+  function inArray( obj, array ){
+
+    for( var i=0; i<array.length; i++ ){
+
+      if( array[i]==obj )
+        return true;
+    }
+
+    return false;
+  }
+
   function setProperty( name, value ){
 
     if( name=='id' ){
@@ -82,32 +93,38 @@ function DataObject(){
     return m_properties[name];
   }
 
-  this.json = function( includeID ){
+  this.json = function( includeID, exclude ){
 
     var json = {};
+
+    if( exclude==undefined )
+      exclude = [];
 
     if( includeID && self.id )
       json.id = self.id;
 
     for( var i in m_properties ){
 
-      var value = m_properties[i];
+      if( !inArray(i, exclude) ){
 
-      if( isArray(value) ){
+          var value = m_properties[i];
 
-        var collection = [];
-        for( var j=0; j<value.length; j++ ){
-          collection.push(value[j].json());
-        }
-        json[i] = collection;
+          if( isArray(value) ){
 
-      } else if( isObject(value) ) {
+              var collection = [];
+              for( var j=0; j<value.length; j++ ){
+                  collection.push(value[j].json());
+              }
+              json[i] = collection;
 
-        json[i] = value.json();
+          } else if( isObject(value) ) {
 
-      } else {
+              json[i] = value.json();
 
-        json[i] = value;
+          } else {
+
+              json[i] = value;
+          }
       }
     }
 
