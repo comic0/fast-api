@@ -443,6 +443,26 @@ var ROOT = {
               var type = data.getType();
               data = data.json(true);
               data.__type = type;
+
+          } else if( typeof data=="object" && data.length ){
+
+              var array = [];
+
+              for( var i=0; i<data.length; i++ ){
+
+                var obj = data[i];
+
+                if( typeof obj=="object" && obj.isDataObject ){
+
+                  var type = obj.getType();
+                  obj = obj.json(true);
+                  obj.__type = type;
+                }
+
+                array.push(obj);
+              }
+
+              data = array;
           }
 
           localStorage.setItem('fast-api-'+key, JSON.stringify(data));
