@@ -316,7 +316,7 @@ function repeatArray( array, times ){
   return result;
 }
 
-module.exports = {
+var ROOT = {
   configure: function( url, apiKey, pushTable ){
 
     if( pushTable==undefined )
@@ -393,50 +393,111 @@ module.exports = {
       return sharedManager.init(query).prepare();
     }
   },
+  storage: {
+    push: function( key, object ){
+
+      var array = ROOT.stored(key);
+
+      if( typeof array!="object" || !array.length ){
+
+        array = [];
+      }
+
+      array.push(object);
+      ROOT.store(key, array);
+    },
+    find: function( key, id ){
+
+        var array = ROOT.stored(key);
+
+        if( typeof array=="object" && array.length ){
+
+          for( var i=0; i<array.length; i++ ){
+
+            if( array[i].id==id )
+              return i;
+          }
+        }
+
+        return -1;
+    },
+    delete: function( key, index ){
+
+        var array = ROOT.stored(key);
+
+        if( typeof array=="object" && array.length ) {
+
+          array.splice(index, 1);
+          ROOT.store(key, array);
+        }
+    }
+  },
   store: function(key, data){
 
-    if( localStorage ){
+    try {
 
       if( data!=null ){
 
-        if( typeof data=="object" && data.isDataObject ){
+          if( typeof data=="object" && data.isDataObject ){
 
-          var type = data.getType();
-          data = data.json(true);
-          data.__type = type;
-        }
+              var type = data.getType();
+              data = data.json(true);
+              data.__type = type;
+          }
 
-        localStorage.setItem('fast-api-'+key, JSON.stringify(data));
+          localStorage.setItem('fast-api-'+key, JSON.stringify(data));
 
       } else {
 
-        localStorage.removeItem('fast-api-'+key);
+          localStorage.removeItem('fast-api-'+key);
       }
+
+    } catch (e){
+
     }
+
   },
   stored: function (key) {
 
-    if( localStorage ){
+    try {
 
-      try {
-
-        var value = localStorage.getItem('fast-api-'+key);
-        if( value ){
+      var value = localStorage.getItem('fast-api-'+key);
+      if( value ){
           var data = JSON.parse(value);
 
           if( typeof data=="object" && data.__type ){
 
-            return new DataObject(data);
+              return new DataObject(data);
+
+          } else if( typeof data=="object" && data.length ) {
+
+              var array = [];
+
+              for( var i=0; i<data.length; i++ ){
+
+                  var obj = data[i];
+
+                  if( typeof obj=="object" && obj.__type ){
+
+                      array.push(new DataObject(obj));
+
+                  } else {
+
+                      array.push(obj);
+                  }
+              }
+
+              return array;
 
           } else {
 
-            return data;
+              return data;
           }
-        }
-
-      } catch (e) {
-
       }
+
+
+    } catch (e) {
+
     }
 
     return null;
@@ -452,3 +513,5 @@ module.exports = {
     return shuffleArray(repeatArray(chars.split(""), 5)).join("").substr(0, length);
   }
 };
+
+module.exports = ROOT;
