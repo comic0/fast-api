@@ -421,7 +421,7 @@ var ROOT = {
 
         return -1;
     },
-    update: function( key, id, objects ){
+    update: function( key, objects ){
 
         if( objects.length==undefined )
             objects = [objects];
@@ -430,7 +430,7 @@ var ROOT = {
 
             var object = objects[i];
             var array = ROOT.stored(key);
-            var index = this.find(key, id);
+            var index = this.find(key, object.id);
 
             if( index>-1 ){
 
