@@ -421,6 +421,29 @@ var ROOT = {
 
         return -1;
     },
+    update: function( key, id, objects ){
+
+        if( objects.length==undefined )
+            objects = [objects];
+
+        for( var i=0; i<objects.length; i++ ) {
+
+            var object = objects[i];
+            var array = ROOT.stored(key);
+            var index = this.find(key, id);
+
+            if( index>-1 ){
+
+                array[index] = object;
+
+            } else {
+
+                array.push(object);
+            }
+
+            ROOT.store(key, array);
+        }
+    },
     delete: function( key, index ){
 
         var array = ROOT.stored(key);
