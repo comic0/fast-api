@@ -269,12 +269,19 @@ function FastApiManager(){
 
       var request = http.request(options, function (res) {
 
+          var result = "";
+
         res.setEncoding('utf8');
         res.on('data', function(data){
 
+            result += data;
+        });
+
+        res.on('end', function(){
+
             try {
 
-                var data = JSON.parse(data);
+                var data = JSON.parse(result);
                 if( data.success ){
                     resolve(parseResult(data.result));
                 } else {
