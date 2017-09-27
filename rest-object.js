@@ -113,13 +113,13 @@ function DataObject(){
 
               var collection = [];
               for( var j=0; j<value.length; j++ ){
-                  collection.push(value[j].json());
+                  collection.push(value[j].json(includeID));
               }
               json[i] = collection;
 
           } else if( isObject(value) ) {
 
-              json[i] = value.json();
+              json[i] = value.json(includeID);
 
           } else {
 
