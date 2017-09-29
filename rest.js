@@ -194,7 +194,7 @@ function FastApiManager(){
     return m_url + '/upload';
   };
 
-  this.push = function( title, message, filters ){
+  this.push = function( title, message, filters, data ){
 
       return new Promise(function (resolve, reject) {
 
@@ -243,7 +243,8 @@ function FastApiManager(){
               src: m_pushTable,
               where: filters,
               title: title,
-              message: message
+              message: message,
+              data: data
           }));
 
           request.end();
