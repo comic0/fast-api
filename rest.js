@@ -365,9 +365,9 @@ var ROOT = {
     sharedManager.logout();
     this.store('current-user', null);
   },
-  push: function( title, message, filters ){
+  push: function( title, message, filters, data ){
 
-    return sharedManager.push(title, message, filters);
+    return sharedManager.push(title, message, filters, data);
   },
   get: function ( object, filters, prepare ) {
 
